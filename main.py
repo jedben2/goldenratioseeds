@@ -10,7 +10,7 @@ w = pygame.display.set_mode((width, width))
 font = pygame.font.SysFont(None, 24)
 
 points = []
-turn = (1 + np.sqrt(5))/2 - 1 - 0.005
+turn = (1 + np.sqrt(5))/2 - 1
 
 def update():
     global points
@@ -25,20 +25,30 @@ def update():
         if angle > 2 * np.pi: angle -= 2 * np.pi
         points.append(np.array([dist * np.cos(angle), dist * np.sin(angle)]))
 
+animating = False
+printed = False
 running = True
 while running:
-    w.fill((0, 0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    update()
-    turn += 0.000001
-
-    for point in points:
-        pygame.draw.circle(surface=w, color=(255, 0, 0), center=(point[0] * scale + width / 2, point[1] * scale + width / 2), radius=3)
-    turn_text = font.render(str(turn), True, (255, 255, 255))
-    w.blit(turn_text, (0, 0))
+    if animating:
+        w.fill((0, 0, 0))
+        turn += 0.000001
+        update()
+        for point in points:
+            pygame.draw.circle(surface=w, color=(255, 0, 0), center=(point[0] * scale + width / 2, point[1] * scale + width / 2), radius=3)
+        turn_text = font.render(str(turn), True, (255, 255, 255))
+        w.blit(turn_text, (0, 0))
+    elif not printed:
+        update()
+        for point in points:
+            pygame.draw.circle(surface=w, color=(255, 0, 0),
+                               center=(point[0] * scale + width / 2, point[1] * scale + width / 2), radius=3)
+        turn_text = font.render(str(turn), True, (255, 255, 255))
+        w.blit(turn_text, (0, 0))
+        printed = True
 
     pygame.display.update()
     time.sleep(1/60)
